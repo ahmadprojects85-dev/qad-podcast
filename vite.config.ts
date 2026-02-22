@@ -1,4 +1,4 @@
-import build from '@hono/vite-build/vercel'
+import build from '@hono/vite-build/cloudflare-pages'
 import devServer from '@hono/vite-dev-server'
 import { defineConfig } from 'vite'
 
