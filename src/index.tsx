@@ -4,8 +4,7 @@ import { translations, type Language, isRTL, getDirection, getLangName } from '.
 import { episodes, getLatestEpisode, getAllThemes, getAllSeasons, loadEpisodes, saveEpisodes, refreshEpisodes, type Episode } from './data/episodes'
 import { guests, getGuests, getGuestById, type Guest } from './data/guests'
 import { socialLinks } from './data/socials'
-import { writeFileSync, mkdirSync, existsSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { socialLinks } from './data/socials'
 
 const app = new Hono()
 
@@ -2414,28 +2413,9 @@ app.delete('/api/episodes/:id', async (c) => {
   }
 })
 
-// Image upload
-app.post('/api/upload', async (c) => {
-  try {
-    const formData = await c.req.formData()
-    const file = formData.get('image') as File
-    if (!file) return c.json({ error: 'No image provided' }, 400)
-
-    const buffer = await file.arrayBuffer()
-    const ext = file.name.split('.').pop() || 'png'
-    const filename = `ep - ${Date.now()}.${ext}`
-    const uploadDir = resolve(process.cwd(), 'public', 'static', 'images', 'episodes')
-
-    if (!existsSync(uploadDir)) {
-      mkdirSync(uploadDir, { recursive: true })
-    }
-
-    writeFileSync(resolve(uploadDir, filename), Buffer.from(buffer))
-    const publicUrl = `/ static / images / episodes / ${filename}`
-    return c.json({ success: true, url: publicUrl })
-  } catch (e: any) {
-    return c.json({ error: e.message }, 500)
-  }
+// Image upload (Disabled in production/serverless)
+app.post('/api/upload', (c) => {
+  return c.json({ error: 'Image upload is disabled in production (serverless environment)' }, 403)
 })
 
 // ==================== ADMIN PAGE ====================

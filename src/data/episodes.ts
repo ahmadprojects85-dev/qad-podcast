@@ -1,7 +1,5 @@
 // QAD Podcast - Episodes Data
-import { readFileSync, writeFileSync } from 'node:fs'
-import { resolve, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import episodesData from './episodes.json'
 
 export interface Episode {
   id: string;
@@ -40,37 +38,22 @@ export interface Episode {
   thumbnail?: string;
 }
 
-const getDataPath = () => {
-  try {
-    const __filename = fileURLToPath(import.meta.url)
-    const __dirname = dirname(__filename)
-    return resolve(__dirname, 'episodes.json')
-  } catch {
-    return resolve(process.cwd(), 'src', 'data', 'episodes.json')
-  }
-}
-
+// Static data for production compatibility
 export const loadEpisodes = (): Episode[] => {
-  try {
-    const data = readFileSync(getDataPath(), 'utf-8')
-    return JSON.parse(data)
-  } catch (e) {
-    console.error('Failed to load episodes.json:', e)
-    return []
-  }
+  return episodesData as Episode[];
 }
 
 export const saveEpisodes = (eps: Episode[]): void => {
-  writeFileSync(getDataPath(), JSON.stringify(eps, null, 2), 'utf-8')
+  console.warn('saveEpisodes is disabled in production (serverless environment)');
 }
 
-// Live-read on every access
+// Live reference
 export const getEpisodes = (): Episode[] => loadEpisodes()
 
-// Keep backward compat - but now reads fresh data
+// Cache reference
 export let episodes: Episode[] = loadEpisodes()
 
-// Refresh the in-memory reference
+// Refresh (no-op in prod, but keeps API compatibility)
 export const refreshEpisodes = () => {
   episodes = loadEpisodes()
   return episodes
