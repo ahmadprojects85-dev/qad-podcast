@@ -1,0 +1,58 @@
+[
+  {
+    "id": "ep-001",
+    "number": 1,
+    "season": 1,
+    "title": {
+      "ckb": "ئەلقەی یەکەم - QAD Podcast",
+      "ar": "الحلقة الأولى - QAD Podcast",
+      "en": "Episode 1 - QAD Podcast"
+    },
+    "description": {
+      "ckb": "ئەلقەی یەکەمی پۆدکاستی QAD - گفتوگۆیەکی قووڵ دەربارەی مێژوو و کولتوور.",
+      "ar": "الحلقة الأولى من بودكاست QAD - حوار عميق حول التاريخ والثقافة.",
+      "en": "First episode of QAD Podcast - A deep conversation about history and culture."
+    },
+    "guestId": "guest-001",
+    "guestName": {
+      "ckb": "میوان - ئەلقەی یەکەم",
+      "ar": "ضيف - الحلقة الأولى",
+      "en": "Guest - Episode 1"
+    },
+    "date": "2024-11-01",
+    "duration": "8:11",
+    "youtubeId": "NjBNyeM3HPo",
+    "themes": [
+      "history",
+      "culture",
+      "kurdistan"
+    ],
+    "chapters": [
+      {
+        "time": "00:00",
+        "title": {
+          "ckb": "پێشەکی",
+          "ar": "مقدمة",
+          "en": "Introduction"
+        }
+      },
+      {
+        "time": "02:00",
+        "title": {
+          "ckb": "گفتوگۆی سەرەکی",
+          "ar": "الحوار الرئيسي",
+          "en": "Main Discussion"
+        }
+      },
+      {
+        "time": "06:00",
+        "title": {
+          "ckb": "کۆتایی",
+          "ar": "الخاتمة",
+          "en": "Conclusion"
+        }
+      }
+    ],
+    "thumbnail": ""
+  }
+]
