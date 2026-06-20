@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"path": "../../.git"
+		},
+		{
+			"path": "../../.wrangler"
+		},
+		{
+			"path": "../../dist"
+		},
+		{
+			"path": "../../node_modules"
+		},
+		{
+			"path": "../../public"
+		},
+		{
+			"path": ".."
+		}
+	]
+}

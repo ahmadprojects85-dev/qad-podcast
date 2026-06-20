@@ -1,0 +1,33 @@
+[
+  {
+    "id": "guest-001",
+    "name": {
+      "ckb": "د.رؤف عثمان",
+      "ar": "د.رؤف عثمان",
+      "en": "Dr. Rauf Othman"
+    },
+    "title": {
+      "ckb": "میوانی ئەلقەی یەکەم",
+      "ar": "ضيف الحلقة الأولى",
+      "en": "Guest of Episode 1"
+    },
+    "bio": {
+      "ckb": "د.رؤف عثمان میوانی ئەلقەی یەکەمی پۆدکاستی QAD بوو.",
+      "ar": "د.رؤف عثمان كان ضيف الحلقة الأولى من بودكاست QAD.",
+      "en": "Dr. Rauf Othman was the guest of the first episode of QAD Podcast."
+    },
+    "highlights": {
+      "ckb": ["میوانی ئەلقەی یەکەم", "گفتوگۆیەکی قووڵ دەربارەی مێژوو"],
+      "ar": ["ضيف الحلقة الأولى", "حوار عميق حول التاريخ"],
+      "en": ["Guest of Episode 1", "Deep conversation about history"]
+    },
+    "quotes": {
+      "ckb": ["مێژوو ڕێنمایی ئێمەیە بۆ داهاتوو."],
+      "ar": ["التاريخ هو دليلنا للمستقبل."],
+      "en": ["History is our guide to the future."]
+    },
+    "episodeIds": ["ep-001"],
+    "image": "",
+    "socialLinks": {}
+  }
+]
