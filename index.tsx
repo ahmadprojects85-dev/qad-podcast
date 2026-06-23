@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { env } from 'hono/adapter'
-import { serveStatic } from 'hono/cloudflare-pages'
+
 import { translations, type Language, isRTL, getDirection, getLangName } from './data/translations'
 import { getEpisodes, getLatestEpisode, getAllThemes, getAllSeasons, saveEpisode, deleteEpisode, getEpisodeBySlug, getEpisodesByTheme, getEpisodesBySeason, type Episode } from './data/episodes'
 import { getGuests, getGuestById, saveGuest, deleteGuest, getGuestsByEpisode, type Guest } from './data/guests'
@@ -11,7 +11,7 @@ type Bindings = { DATABASE_URL: string; };
 const app = new Hono<{ Bindings: Bindings }>()
 
 // Serve static files
-app.use('/static/*', serveStatic())
+
 
 // Brand tokens
 const brand = {
