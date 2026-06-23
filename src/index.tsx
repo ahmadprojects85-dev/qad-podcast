@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
-import { serveStatic } from 'hono/cloudflare-pages'
+import { env } from 'hono/adapter'
+
 import { translations, type Language, isRTL, getDirection, getLangName } from './data/translations'
 import { getEpisodes, getLatestEpisode, getAllThemes, getAllSeasons, saveEpisode, deleteEpisode, getEpisodeBySlug, getEpisodesByTheme, getEpisodesBySeason, type Episode } from './data/episodes'
 import { getGuests, getGuestById, saveGuest, deleteGuest, getGuestsByEpisode, type Guest } from './data/guests'
@@ -10,7 +11,7 @@ type Bindings = { DATABASE_URL: string; };
 const app = new Hono<{ Bindings: Bindings }>()
 
 // Serve static files
-app.use('/static/*', serveStatic())
+
 
 // Brand tokens
 const brand = {
@@ -1589,9 +1590,9 @@ const getScripts = () => `
 app.get('/', async (c) => {
   const lang = getLang(c)
   const t = translations[lang]
-  const allEpisodes = await getEpisodes(c.env.DATABASE_URL)
+  const allEpisodes = await getEpisodes((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL))
   const latestEp = allEpisodes[0]
-  const guest = latestEp ? await getGuestById(c.env.DATABASE_URL, latestEp.guestId) : null
+  const guest = latestEp ? await getGuestById((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL), latestEp.guestId) : null
 
   return c.html(`
     <!DOCTYPE html>
@@ -1632,7 +1633,7 @@ app.get('/', async (c) => {
           </div>
           
           ${(await Promise.all([latestEp].filter(Boolean).map(async (ep, idx) => {
-    const epGuest = await getGuestById(c.env.DATABASE_URL, ep.guestId);
+    const epGuest = await getGuestById((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL), ep.guestId);
     const ytId = extractYoutubeId(ep.youtubeId);
     return `
           <div class="latest-episode fade-in" style="margin-bottom: ${idx < allEpisodes.length - 1 ? '3rem' : '0'};">
@@ -1733,7 +1734,7 @@ app.get('/', async (c) => {
           </div>
           
           <div class="guests-grid">
-            ${(await getGuests(c.env.DATABASE_URL)).slice(0, 6).map((g, i) => `
+            ${(await getGuests((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL))).slice(0, 6).map((g, i) => `
               <a href="/guest/${g.id}?lang=${lang}" class="guest-card fade-in" style="transition-delay: ${i * 0.1}s">
                 <div class="guest-card-img">
                   <i class="fas fa-user"></i>
@@ -1785,7 +1786,7 @@ app.get('/episodes', async (c) => {
   const lang = getLang(c)
   const t = translations[lang]
   const themes = ['culture', 'history', 'religion']
-  const allEpisodes = await getEpisodes(c.env.DATABASE_URL)
+  const allEpisodes = await getEpisodes((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL))
 
   return c.html(`
     <!DOCTYPE html>
@@ -1850,14 +1851,14 @@ app.get('/episode/:id', async (c) => {
   const lang = getLang(c)
   const t = translations[lang]
   const id = c.req.param('id')
-  const allEpisodes = await getEpisodes(c.env.DATABASE_URL)
+  const allEpisodes = await getEpisodes((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL))
   const ep = allEpisodes.find(e => e.id === id)
 
   if (!ep) {
     return c.notFound()
   }
 
-  const guest = await getGuestById(c.env.DATABASE_URL, ep.guestId)
+  const guest = await getGuestById((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL), ep.guestId)
   const epIndex = allEpisodes.findIndex(e => e.id === id)
   const prevEp = epIndex < allEpisodes.length - 1 ? allEpisodes[epIndex + 1] : null
   const nextEp = epIndex > 0 ? allEpisodes[epIndex - 1] : null
@@ -2024,7 +2025,7 @@ app.get('/guests', async (c) => {
       <section class="section">
         <div class="container">
           <div class="guests-grid">
-            ${(await getGuests(c.env.DATABASE_URL)).map((g, i) => `
+            ${(await getGuests((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL))).map((g, i) => `
               <a href="/guest/${g.id}?lang=${lang}" class="guest-card fade-in" style="transition-delay: ${i * 0.1}s">
                 <div class="guest-card-img">
                   <i class="fas fa-user"></i>
@@ -2050,13 +2051,13 @@ app.get('/guest/:id', async (c) => {
   const lang = getLang(c)
   const t = translations[lang]
   const id = c.req.param('id')
-  const guest = await getGuestById(c.env.DATABASE_URL, id)
+  const guest = await getGuestById((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL), id)
 
   if (!guest) {
     return c.notFound()
   }
 
-  const allEpisodes = await getEpisodes(c.env.DATABASE_URL)
+  const allEpisodes = await getEpisodes((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL))
   const guestEpisodes = allEpisodes.filter(ep => guest.episodeIds.includes(ep.id))
 
   return c.html(`
@@ -2332,23 +2333,23 @@ app.get('/contact', async (c) => {
 
 
 app.get('/api/episodes', async (c) => {
-  return c.json(await getEpisodes(c.env.DATABASE_URL))
+  return c.json(await getEpisodes((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL)))
 })
 
 app.get('/api/guests', async (c) => {
-  return c.json(await getGuests(c.env.DATABASE_URL))
+  return c.json(await getGuests((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL)))
 })
 
 app.get('/api/episode/:id', async (c) => {
   const id = c.req.param('id')
-  const ep = await getEpisodeBySlug(c.env.DATABASE_URL, id)
+  const ep = await getEpisodeBySlug((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL), id)
   if (!ep) return c.json({ error: 'Not found' }, 404)
   return c.json(ep)
 })
 
 app.get('/api/guest/:id', async (c) => {
   const id = c.req.param('id')
-  const g = await getGuestById(c.env.DATABASE_URL, id)
+  const g = await getGuestById((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL), id)
   if (!g) return c.json({ error: 'Not found' }, 404)
   return c.json(g)
 })
@@ -2357,7 +2358,7 @@ app.get('/api/guest/:id', async (c) => {
 app.post('/api/episodes', async (c) => {
   try {
     const body = await c.req.json()
-    const eps = await getEpisodes(c.env.DATABASE_URL)
+    const eps = await getEpisodes((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL))
     const newEp: Episode = {
       id: body.id || `ep-${String(eps.length + 1).padStart(3, '0')}`,
       number: body.number || eps.length + 1,
@@ -2373,7 +2374,7 @@ app.post('/api/episodes', async (c) => {
       chapters: body.chapters || [],
       thumbnail: body.thumbnail || ''
     }
-    await saveEpisode(c.env.DATABASE_URL, newEp)
+    await saveEpisode((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL), newEp)
     return c.json({ success: true, episode: newEp })
   } catch (e: any) {
     return c.json({ error: e.message }, 400)
@@ -2385,10 +2386,10 @@ app.put('/api/episodes/:id', async (c) => {
   try {
     const id = c.req.param('id')
     const body = await c.req.json()
-    const ep = await getEpisodeBySlug(c.env.DATABASE_URL, id)
+    const ep = await getEpisodeBySlug((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL), id)
     if (!ep) return c.json({ error: 'Not found' }, 404)
     const updatedEp = { ...ep, ...body, id }
-    await saveEpisode(c.env.DATABASE_URL, updatedEp)
+    await saveEpisode((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL), updatedEp)
     return c.json({ success: true, episode: updatedEp })
   } catch (e: any) {
     return c.json({ error: e.message }, 400)
@@ -2399,7 +2400,7 @@ app.put('/api/episodes/:id', async (c) => {
 app.delete('/api/episodes/:id', async (c) => {
   try {
     const id = c.req.param('id')
-    await deleteEpisode(c.env.DATABASE_URL, id)
+    await deleteEpisode((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL), id)
     return c.json({ success: true })
   } catch (e: any) {
     return c.json({ error: e.message }, 400)
@@ -2415,13 +2416,13 @@ app.post('/api/upload', async (c) => {
 
 // List guests
 app.get('/api/guests-list', async (c) => {
-  return c.json(await getGuests(c.env.DATABASE_URL))
+  return c.json(await getGuests((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL)))
 })
 
 // Get single guest
 app.get('/api/guest-detail/:id', async (c) => {
   const id = c.req.param('id')
-  const g = await getGuestById(c.env.DATABASE_URL, id)
+  const g = await getGuestById((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL), id)
   if (!g) return c.json({ error: 'Not found' }, 404)
   return c.json(g)
 })
@@ -2441,7 +2442,7 @@ app.post('/api/guests', async (c) => {
       image: body.image || '',
       socialLinks: body.socialLinks || {}
     }
-    await saveGuest(c.env.DATABASE_URL, newGuest)
+    await saveGuest((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL), newGuest)
     return c.json({ success: true, guest: newGuest })
   } catch (e: any) {
     return c.json({ error: e.message }, 400)
@@ -2453,10 +2454,10 @@ app.put('/api/guests/:id', async (c) => {
   try {
     const id = c.req.param('id')
     const body = await c.req.json()
-    const g = await getGuestById(c.env.DATABASE_URL, id)
+    const g = await getGuestById((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL), id)
     if (!g) return c.json({ error: 'Not found' }, 404)
     const updatedGuest = { ...g, ...body, id }
-    await saveGuest(c.env.DATABASE_URL, updatedGuest)
+    await saveGuest((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL), updatedGuest)
     return c.json({ success: true, guest: updatedGuest })
   } catch (e: any) {
     return c.json({ error: e.message }, 400)
@@ -2467,7 +2468,7 @@ app.put('/api/guests/:id', async (c) => {
 app.delete('/api/guests/:id', async (c) => {
   try {
     const id = c.req.param('id')
-    await deleteGuest(c.env.DATABASE_URL, id)
+    await deleteGuest((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL), id)
     return c.json({ success: true })
   } catch (e: any) {
     return c.json({ error: e.message }, 400)
@@ -2477,9 +2478,9 @@ app.delete('/api/guests/:id', async (c) => {
 // ==================== ADMIN PAGE ====================
 
 app.get('/admin', async (c) => {
-  const eps = await getEpisodes(c.env.DATABASE_URL)
-  const themes = await getAllThemes(c.env.DATABASE_URL)
-  const allGuests = await getGuests(c.env.DATABASE_URL)
+  const eps = await getEpisodes((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL))
+  const themes = await getAllThemes((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL))
+  const allGuests = await getGuests((typeof process !== 'undefined' && process.env.DATABASE_URL ? process.env.DATABASE_URL : env<{DATABASE_URL: string}>(c).DATABASE_URL))
   return c.html(`
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
